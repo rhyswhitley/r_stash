@@ -2,8 +2,6 @@
 #define _main_RCPP_MAIN_H
 #define _USE_MATH_DEFINES
 
-#include <omp.h>
-// [[Rcpp::plugins(openmp)]]
 #include <iostream>
 #include <vector>
 #include <math.h>

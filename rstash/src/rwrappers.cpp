@@ -1,5 +1,4 @@
 #include "energy.hh"
-#include <omp.h>
 
 RcppExport SEXP sunshine( const SEXP r_sun ) {
 // Calculates the total radiation at the top of the atmosphere based on

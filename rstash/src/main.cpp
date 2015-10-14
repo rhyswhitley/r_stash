@@ -1,5 +1,4 @@
 #include "main.hh"
-#include <omp.h>
 
 // Grided climate data is passed from R and accessed via Rcpp wrappers
 // ==> cols 01:02 are lat:lon
@@ -31,7 +30,6 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
     gridCell.init_Month();
     gridCell.resIn_Year();
     // run through each grid cell and perform daily time-series calculations
-    #pragma omp parallel for private(mn) firstprivate(gridCell)
     for( ll=0; ll<ncell; ll++ ) {
 
         // initialise the cell and zero object private members
@@ -73,8 +71,6 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
         gridCell.monthlyIndex();
         gridCell.annualSums();
 
-#pragma omp critical
-{
         // convert back to matrices for export to R
         assign_Rinit( gridCell, ll, gSWC0, 364, &GridCell::get_dSMC     );
         assign_Rtotal( gridCell, ll, gTOT );
@@ -90,8 +86,6 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
         assign_Rmonth( gridCell, ll, gGDD5,    &GridCell::get_mGDD5    );
         assign_Rmonth( gridCell, ll, gGDD10,   &GridCell::get_mGDD10   );
         assign_Rmonth( gridCell, ll, gCHILL,   &GridCell::get_mCHILL   );
-
-}
 
     }
     return List::create(
