@@ -3,3 +3,4 @@
 *.mod
 *.so
 *.log
+test_scripts/*

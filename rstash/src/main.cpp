@@ -1,4 +1,5 @@
 #include "main.hh"
+#include <omp.h>
 
 // Grided climate data is passed from R and accessed via Rcpp wrappers
 // ==> cols 01:02 are lat:lon
@@ -14,6 +15,7 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
 
     NumericVector   lon = fsun(_,0), lat = fsun(_,1), elev = gcChar(_,2), fcap = gcChar(_,3), swc0 = gcChar(_,4);
 
+    float           miss_val;
     unsigned int    mn;
     unsigned long   ll, ncell = fsun.nrow();
 
@@ -26,16 +28,17 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
 
     GridCell gridCell;
     // initialise vectors in object
-    gridCell.init_Day();
-    gridCell.init_Month();
-    gridCell.resIn_Year();
+    gridCell.init_Day   (0.0);
+    gridCell.init_Month (0.0);
+    gridCell.resIn_Year (0.0);
     // run through each grid cell and perform daily time-series calculations
+    #pragma omp parallel for private(mn) firstprivate(gridCell)
     for( ll=0; ll<ncell; ll++ ) {
 
         // initialise the cell and zero object private members
-        gridCell.reset_Day();
-        gridCell.reset_Month();
-        gridCell.resIn_Year();
+        gridCell.reset_Day  (0.0);
+        gridCell.reset_Month(0.0);
+        gridCell.resIn_Year (0.0);
 
         // set cell characteristics
         gridCell.set_Cell( ll+1 );
@@ -44,11 +47,11 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
         gridCell.set_Coord( lat(ll), lon(ll) );
 
         // if SWC has a value then set this as the initial condition and no spin-up is required
-        if( swc0[ll]!=-9999.) {
+        if(swc0[ll]!=-9999.) {
             gridCell.init_SMC( swc0[ll] );
-            gridCell.set_SpinUp( false );
+            gridCell.set_SpinUp(false);
         } else {
-            gridCell.set_SpinUp( true );
+            gridCell.set_SpinUp(true);
         }
 
         // store monthly climate drivers in the gridCell object (+2 to get rid of lat-lon columns)
@@ -58,21 +61,32 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
             gridCell.set_mPPT ( prec(ll,mn+2), mn );
         }
 
-        // linearly interpolate monthly values to daily values for the climate drivers
-        gridCell.linearINT( gridCell, gridCell.get_mFSUN(),  &GridCell::set_dFSUN );
-        gridCell.linearINT( gridCell, gridCell.get_mTEMP(),  &GridCell::set_dTEMP );
-        gridCell.linearINT( gridCell, gridCell.get_mPPT (),  &GridCell::set_dPPT  );
-        //cout << "STASHING >> Grid Cell :" << gridCell.get_Cell() << endl;
-        // do water balance calculations
-        waterBucket( gridCell );
-        // perform monthly and annual sums
-        gridCell.growDegDay();
-        gridCell.monthlySums();
-        gridCell.monthlyIndex();
-        gridCell.annualSums();
+        cout << "STASHING << Grid Cell :" << gridCell.get_Cell() << endl;
+        R_FlushConsole();
+        R_ProcessEvents();
 
+        // if the grid cell does not have any missing values
+        miss_val = gridCell.get_Missing();
+        if((gridCell.get_mTEMP(1) != miss_val) | (gridCell.get_mFSUN(1) != miss_val) | (gridCell.get_mPPT(1) != miss_val)) {
+            // linearly interpolate monthly values to daily values for the climate drivers
+            gridCell.linearINT( gridCell, gridCell.get_mFSUN(),  &GridCell::set_dFSUN );
+            gridCell.linearINT( gridCell, gridCell.get_mTEMP(),  &GridCell::set_dTEMP );
+            gridCell.linearINT( gridCell, gridCell.get_mPPT (),  &GridCell::set_dPPT  );
+            // do water balance calculations
+            waterBucket( gridCell );
+            // perform monthly and annual sums
+            gridCell.growDegDay();
+            gridCell.monthlySums();
+            gridCell.monthlyIndex();
+            gridCell.annualSums();
+        } else {
+            gridCell.set_MissingCell();
+        }
+
+#pragma omp critical
+{
         // convert back to matrices for export to R
-        assign_Rinit( gridCell, ll, gSWC0, 364, &GridCell::get_dSMC     );
+        assign_Rinit ( gridCell, ll, gSWC0, 364, &GridCell::get_dSMC   );
         assign_Rtotal( gridCell, ll, gTOT );
         assign_Rmonth( gridCell, ll, gAET,     &GridCell::get_mAET     );
         assign_Rmonth( gridCell, ll, gEET,     &GridCell::get_mEET     );
@@ -86,6 +100,8 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
         assign_Rmonth( gridCell, ll, gGDD5,    &GridCell::get_mGDD5    );
         assign_Rmonth( gridCell, ll, gGDD10,   &GridCell::get_mGDD10   );
         assign_Rmonth( gridCell, ll, gCHILL,   &GridCell::get_mCHILL   );
+
+}
 
     }
     return List::create(

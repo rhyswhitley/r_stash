@@ -4,33 +4,31 @@
     \docType{package}
     \title{Gridded Climate STASH}
     \description{
-    Determines gridded bioclimatic information from mean monthly temperature,
+    Determines gridded hydrology and other bioclimatic information from mean monthly temperature,
     total monthly precipitation and the fraction of monthly sunshine hours.
     }
     \usage{
-    grid.stash( i_temp, i_prec, i_srad, i_char )
+    grid.stash(temperature, rainfall, sunshine.hours, gridcell.chars)
     }
     \arguments{
-        \item{i_temp}{A raster,matrix or dataframe of gridded mean monthly temperature in degrees Celsius. For matrix and dataframe class, the first
+        \item{temperature}{A matrix or dataframe of gridded mean monthly temperature in degrees Celsius. For matrix and dataframe class, the first
             column is a measure of longitude, and the second is latitude. The
             proceeding 12 columns are measurements of mean temperature for each
             month of the year.}
-        \item{i_prec}{A raster,matrix or dataframe of gridded total monthly precipitation in millimeters. For matrix and dataframe class, the first
+        \item{rainfall}{A matrix or dataframe of gridded total monthly precipitation in millimeters. For matrix and dataframe class, the first
             column is a measure of longitude, and the second is latitude. The
             proceeding 12 columns are measurements of total precipitation for each
             month of the year.}
-        \item{i_srad}{A raster,matrix or dataframe of gridded monthly fractional sunlight hours. For matrix and dataframe class, the first
+        \item{sunshine.hours}{A matrix or dataframe of gridded monthly fractional sunlight hours. For matrix and dataframe class, the first
             column is a measure of longitude, and the second is latitude. The
             proceeding 12 columns are measurements of fractional sunlight hours for
             each month of the year. This can be determined from the sunshine
             function.} 
-        \item{i_char}{A raster, matrix or dataframe of the grid cell characteristics. For matrix and dataframe class, the first two
+        \item{gridcell.chars}{A matrix or dataframe of the grid cell characteristics. For matrix and dataframe class, the first two
             columns relate to longitude and latitude respectively, while the third
-            column is the elevation, the fourth column is the soil-water field capacity (bucket depth), and the fourth column is the initial
-            soil water depth for the beginning of the year (set to -9999.0 for spinup).} 
-
-    Note : i_temp, i_prec and i_srad have to be of same class (either raster or matrix/dataframe). i_char doesn't have to be of same class as them.
-    
+            column is the elevation, the fourth column is the soil-water field capacity (bucket depth), and the fifth column is the initial
+            soil water depth for the beginning of the year. If initial conditions are unknown, then the model can initiated to perform a
+            spin-up of 40 cycles to determine the steady-state water balance for the grid cell} 
     }
     \details{
     \tabular{ll}{
@@ -38,7 +36,7 @@
     Type: \tab Package\cr
     Version: \tab 2.0\cr
     Date: \tab 2014-04-28\cr
-    License: \tab GPL (>= 2)\cr
+    License: \tab GPL-3\cr
     }
     Gridded Climate Stash is an adaptation of the process-based PeatStash model published by
     Gallego-Sala et al. (2010); an evolution itself on the original Stash model
@@ -69,12 +67,14 @@
 
     The underlying code has been written in an object-oriented framework using C++
     in conjunction with the seminal Rcpp package developed by
-    \href{dirk.eddelbuettel.com\code}{Dirk Eddelbuettel} and Romain Francois. The
-    development of this package is part of a major work belonging to the ecosystem
-    Modelling And Scaling infrasTructure (e-MAST) as part of the Terrestrial
-    Ecosystem Research Network. All who wish to help develop this package are
-    welcome to do so and may contact the package maintainer for access to the git
-    repository.
+    \href{dirk.eddelbuettel.com\code}{Dirk Eddelbuettel} and Romain Francois.
+
+    An example dataset has been provided containing all input information, excluding
+    the grid cell characteristic information. An example of how to create the grid cell
+    characteristic information has been given below). The example dataset is a product
+    of the ANUCLIM datasets created by M. F. Hutchinson Fenner School of Environment and 
+    Society, Australian National University, Canberra (\href{http://fennerschool.anu.edu.au/}{http://fennerschool.anu.edu.au/}). 
+    All uses of this example dataset should be referenced to his research group.
     }
     \author{
     Rhys Whitley, Wang Han
@@ -98,31 +98,37 @@
     %%~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
     }
     \examples{
-    library(emast)
+    # load the package
+    library(rstash)
 
-    # wave function to synthesise an arbitrary time-series for each of the variables
-    wave <- function(x,a=1e3,b=2e2,k=0.53,p=1.5) a+b*sin(x*k+p)
-    mons <- 1:12
+    # load the example dataset
+    data(tasmania)
 
-    # modified by unit values for specific climate inputs
-    # mean monthly temperature
-    t_tair  <- wave(mons, a=20, b=30, k=0.52)
-    # total monthly precipitation
-    t_ppt   <- wave(mons, k=0.50, p=4.75)
-    # mean monthly sunshine hours
-    t_sun   <- wave(mons, k=0.54)/1.5e3
+    ## [not run] -- test the inputs look right
+    #rain.input <- stack.by.mon(tasmania$PPT, na.rm=T)
+    #plot(rain.input)
 
-    # geo-coord is 140 deg E x -30 deg N
-    cells   <- 1e3
-    latlon  <- t( array( c(140,-30), c(2,cells) ) )
-    # elevation 10 m above sea-level and field capacity 150 mm
-    g_char  <- cbind( latlon, t( array( c(10,150), c(2,cells) ) ) )
-    # create a matrix that repeats the wave functions foe each cell
-    g_tair  <- cbind( latlon, t(array( rep(t_tair,cells), c(12,cells) ) ) )
-    g_ppt   <- cbind( latlon, t(array( rep(t_ppt,cells) , c(12,cells) ) ) )
-    g_sun   <- cbind( latlon, t(array( rep(t_sun,cells) , c(12,cells) ) ) )
+    # create a grid characteristic matrix
+    # --------------------------------------------------
+    # add lat/lon coordinates
+    gchar <- tasmania$MAT[,1:2]
+    # elevation [constant for testing]
+    gchar$elev <- 0
+    # field capacity of bucket water holding capacity [mm]
+    gchar$fcap <- 140
+    # initial soil water conditions [set -9999.0 for spinup]
+    gchar$swc0 <- -9999.0
+    # --------------------------------------------------
 
-    # do calc and time it
-    tim <- system.time( bio_out <- grid.stash( g_tair, g_ppt, g_sun, g_char ) ); tim
+    # run model
+    output <- grid.stash(tasmania$MAT, tasmania$PPT, tasmania$Sol.Rad, gchar)
+
+    # look at the annual total results
+    ann.total <- stack.by.dat(output$Total, na.rm=T)
+    plot(ann.total)
+
+    # look at individual monthly results for each bioclimatic mini-output (e.g. actual evaporation)
+    aet.12mon <- stack.by.mon(output$AET, na.rm=T)
+    plot(aet.12mon)    
     }
 

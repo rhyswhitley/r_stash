@@ -9,7 +9,7 @@ Type: Package
 
 Title: STASH R-Package
 
-Version: 1.0
+Version: 2.0
 
 Date: 2014-06-07
 
@@ -21,7 +21,7 @@ Description: Determines bioclimatic information based on temperature, precipitat
 
 License: GPL (>= 2)
 
-Depends: Rcpp (>= 0.10.3)
+Depends: Rcpp (>= 0.10.3), raster
 
 LinkingTo: Rcpp
 
@@ -55,11 +55,14 @@ You can download the latest version via two methods. Easiest way is to clone the
 or you can download the zip file from the this website. Once you've downloaded the repository you can install the package via two methods:
 
 #### >> Within R software
-Using Rstudio or the base R software, click on Packages & Data > Package Installer. From
-the drop-down menu change CRAN (binaries) to Local Source Package. Click
+The easiest way to install the package is by using the devtools package available through CRAN. Type the following in and away you go:
+
+`devtools::install_github("rhyswhitley/r_stash")`
+
+If this fails, then you can try installing the package from the compressed tar.gz file, which you can download above. Using Rstudio or the base R software, click on Packages & Data > Package Installer. From the drop-down menu change CRAN (binaries) to Local Source Package. Click
 through to where you've downloaded the package and select the rstash_X.tar.gz
 file (the version number X is likely to change frequently at this stage of
-development). The R kernel will then print compilation of the package to your screen and you will end up with  binary which will be used by R to do all the fun climate envelope calculations. If you encounter any errors, please see 1the troubleshooting section below.
+development). The R kernel will then print compilation of the package to your screen and you will end up with  binary which will be used by R to do all the fun climate envelope calculations. If you encounter any errors, please see the troubleshooting section below.
 
 #### >> CLI
 The other option is to directly compile the source code yourself and link it
