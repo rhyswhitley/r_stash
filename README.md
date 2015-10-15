@@ -19,7 +19,7 @@ Maintainer: [Rhys Whitley](<Rhys.Whitley@mq.edu.au>)
 
 Description: Determines bioclimatic information based on temperature, precipitation and sunshine hours.
 
-License: GPL (>= 2)
+License: GPL-3
 
 Depends: Rcpp (>= 0.10.3), raster
 
