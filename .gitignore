@@ -4,3 +4,4 @@
 *.so
 *.log
 test_scripts/*
+*Rapp.history
