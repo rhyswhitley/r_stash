@@ -65,36 +65,77 @@ sunray <- function(swr,mon,lat) {
     }
 }
 
-# Convert each vector of data into a monthly raster
-make.map <- function(X,i,cres) {
-    aumap       <- raster( nrow=695,ncol=822,
-                   xmn=112.9,xmx=154,ymn=-43.75,ymx=-9,
-                   crs="+proj=longlat +datum=WGS84" )
-    coord       <- cellFromXY( aumap, cbind(X[,1],X[,2]))
-    aumap[coord]<- X[,i+2]
-    return( aumap )
+# counts the number of cells in a coordinate direction
+count.cells <- function(i.range, res) {
+    return((abs(i.range[2]-i.range[1])+res)/res) 
 }
-# stack monthly climate data into a raster stack for plotting
-stack.mon <- function( dat, cres=0.05 ) {
+
+# Convert an x-y-x dataset into a raster
+make.map  <- function(X) {
+    # longitude extent
+    x.ext <- range(X[[1]])
+    # latitude extent
+    y.ext <- range(X[[2]])
+    # grid resolution
+    res   <- X[[1]][2] - X[[1]][1]
+    # number of cells in x/y directions
+    num.x <- count.cells(x.ext, res)
+    num.y <- count.cells(y.ext, res)
+    # create the raster grid based on the above geometry
+    aumap       <- raster(nrow=num.y, ncol=num.x,
+                   xmn=x.ext[1], xmx=x.ext[2], 
+                   ymn=y.ext[1], ymx=y.ext[2],
+                   crs="+proj=longlat +datum=WGS84" )
+    # retrieve the grid cell coordinates
+    coord       <- cellFromXY(aumap, cbind(X[[1]], X[[2]]))
+    # now attach data to each coordinate
+    aumap[coord]<- X[[3]]
+    # return to user
+    return(aumap)
+}
+
+# stack monthly outputs into a raster stack for plotting
+stack.by.mon <- function(dat, na.rm=F) {
+    # empty stack
     s <- stack()
-    for( i in 1:(ncol(dat)-2) ) {
-        cat("Adding layer ",i,"\n")
-        r <- make.map(dat,i,cres)
-        s <- addLayer( s, r )
+    # loop through each column of data
+    for( i in 3:length(dat) ) {
+        # ignoring the lat/lon, go through each column of data
+        dat.slice <- dat[, c(1:2, i)]
+        # decide to remove NULL cells
+        if(na.rm) {
+            dat.slice[dat.slice <= -999] <- NA
+        }
+        # convert the slice to a raster
+        r <- make.map(dat.slice)
+        # add each raster to the stack
+        s <- addLayer(s, r)
     }
-    names(s) <- c("Jan","Feb","Mar","Apr","May","Jun",
-                  "Jul","Aug","Sep","Oct","Nov","Dec")
+    # attach names for each layer in the stack
+    names(s) <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+    # return to user
     return(s)
 }
-# stack the outputs from stash into a raster stack for plotting
-stack.dat <- function( dat, cres=0.05 ) {
+
+# stack the annual total outputs into a raster stack for plotting
+stack.by.out <- function(dat, na.rm=F) {
     s <- stack()
-    for( i in 1:(length(dat)-2) ) {
-        r <- make.map(dat,i,cres)
-        s <- addLayer( s, r )
+    # loop through each column of data
+    for( i in 3:length(dat) ) {
+        # ignoring the lat/lon, go through each column of data
+        dat.slice <- dat[, c(1:2, i)]
+        # decide to remove NULL cells
+        if(na.rm) {
+            dat.slice[dat.slice <= -999] <- NA
+        }
+        # convert the slice to a raster
+        r <- make.map(dat.slice)
+        # add each raster to the stack
+        s <- addLayer(s, r)
     }
     names(s) <- c("AET","EET","PET","DET","PAR",
                   "MI","Alpha","MAT","MAP","FSUN",
                   "RO","GDD0","GDD5","GDD10","Chill")
     return(s)
 }
+
