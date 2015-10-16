@@ -4,27 +4,27 @@
     \docType{package}
     \title{Gridded Climate STASH}
     \description{
-    Determines gridded hydrology and other bioclimatic information from mean monthly temperature,
+    Determines gridded hydrology, energy and other bioclimatic information from mean monthly temperature,
     total monthly precipitation and the fraction of monthly sunshine hours.
     }
     \usage{
-    grid.stash(temperature, rainfall, sunshine.hours, gridcell.chars)
+    grid.stash(temp.air, precip, sun.hours, grid.chars)
     }
     \arguments{
-        \item{temperature}{A matrix or dataframe of gridded mean monthly temperature in degrees Celsius. For matrix and dataframe class, the first
+        \item{temp.air}{A matrix or dataframe of gridded mean monthly temperature in degrees Celsius. For matrix and dataframe class, the first
             column is a measure of longitude, and the second is latitude. The
             proceeding 12 columns are measurements of mean temperature for each
             month of the year.}
-        \item{rainfall}{A matrix or dataframe of gridded total monthly precipitation in millimeters. For matrix and dataframe class, the first
+        \item{precip}{A matrix or dataframe of gridded total monthly precipitation in millimeters. For matrix and dataframe class, the first
             column is a measure of longitude, and the second is latitude. The
             proceeding 12 columns are measurements of total precipitation for each
             month of the year.}
-        \item{sunshine.hours}{A matrix or dataframe of gridded monthly fractional sunlight hours. For matrix and dataframe class, the first
+        \item{sun.hours}{A matrix or dataframe of gridded monthly fractional sunlight hours. For matrix and dataframe class, the first
             column is a measure of longitude, and the second is latitude. The
             proceeding 12 columns are measurements of fractional sunlight hours for
             each month of the year. This can be determined from the sunshine
             function.} 
-        \item{gridcell.chars}{A matrix or dataframe of the grid cell characteristics. For matrix and dataframe class, the first two
+        \item{grid.chars}{A matrix or dataframe of the grid cell characteristics. For matrix and dataframe class, the first two
             columns relate to longitude and latitude respectively, while the third
             column is the elevation, the fourth column is the soil-water field capacity (bucket depth), and the fifth column is the initial
             soil water depth for the beginning of the year. If initial conditions are unknown, then the model can initiated to perform a
@@ -42,9 +42,9 @@
     Gallego-Sala et al. (2010); an evolution itself on the original Stash model
     developed by Sykes et al. (1996). The purpose of ClimStash is to calculate
     bioclimatic information from gridded spatial maps of long-term monthly
-    precipitation (PPT), temperature (MAT) and the fraction of possible sunshine
-    hours (fSun; inversely related to cloud cover). This version of the Stash model
-    goes a step further by including elevation in determining gridded bioclimatic
+    precipitation (precip), air temperature (temp.air) and the fraction of possible sunshine
+    hours (sun.hours; inversely related to cloud cover). This version of the Stash model
+    goes a step further by including elevation in determining gridded hydrology, energy and other bioclimatic
     products. Outputs from the program include spatial maps of actual, equilibrium
     and potential evapotranspiration (AET, EET and PET respectively) moisture index
     (EET/PPT), the Prentice Cramer coefficient or alpha (AET/EET), growing degrees
@@ -69,12 +69,6 @@
     in conjunction with the seminal Rcpp package developed by
     \href{dirk.eddelbuettel.com\code}{Dirk Eddelbuettel} and Romain Francois.
 
-    An example dataset has been provided containing all input information, excluding
-    the grid cell characteristic information. An example of how to create the grid cell
-    characteristic information has been given below). The example dataset is a product
-    of the ANUCLIM datasets created by M. F. Hutchinson Fenner School of Environment and 
-    Society, Australian National University, Canberra (\href{http://fennerschool.anu.edu.au/}{http://fennerschool.anu.edu.au/}). 
-    All uses of this example dataset should be referenced to his research group.
     }
     \author{
     Rhys Whitley, Wang Han
@@ -102,16 +96,16 @@
     library(rstash)
 
     # load the example dataset
-    data(tasmania)
+    data(tasclim)
 
     ## [not run] -- test the inputs look right
-    #rain.input <- stack.by.mon(tasmania$PPT, na.rm=T)
+    #rain.input <- stack.by.mon(tasclim$PPT, na.rm=T)
     #plot(rain.input)
 
     # create a grid characteristic matrix
     # --------------------------------------------------
     # add lat/lon coordinates
-    gchar <- tasmania$MAT[,1:2]
+    gchar <- tasclim$MAT[,1:2]
     # elevation [constant for testing]
     gchar$elev <- 0
     # field capacity of bucket water holding capacity [mm]
@@ -121,10 +115,10 @@
     # --------------------------------------------------
 
     # run model
-    output <- grid.stash(tasmania$MAT, tasmania$PPT, tasmania$Sol.Rad, gchar)
+    output <- grid.stash(tasclim$MAT, tasclim$PPT, tasclim$Sun.Hrs, gchar)
 
     # look at the annual total results
-    ann.total <- stack.by.dat(output$Total, na.rm=T)
+    ann.total <- stack.by.out(output$Total, na.rm=T)
     plot(ann.total)
 
     # look at individual monthly results for each bioclimatic mini-output (e.g. actual evaporation)

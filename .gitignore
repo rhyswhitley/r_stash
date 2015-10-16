@@ -3,5 +3,8 @@
 *.mod
 *.so
 *.log
+*.rds
 test_scripts/*
-*Rapp.history
+.Rapp.history
+rstash.Rcheck
+figures/

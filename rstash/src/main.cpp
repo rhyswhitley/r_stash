@@ -1,5 +1,5 @@
 #include "main.hh"
-#include <omp.h>
+#include "extras.hh"
 
 // Grided climate data is passed from R and accessed via Rcpp wrappers
 // ==> cols 01:02 are lat:lon
@@ -31,8 +31,8 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
     gridCell.init_Day   (0.0);
     gridCell.init_Month (0.0);
     gridCell.resIn_Year (0.0);
+
     // run through each grid cell and perform daily time-series calculations
-    #pragma omp parallel for private(mn) firstprivate(gridCell)
     for( ll=0; ll<ncell; ll++ ) {
 
         // initialise the cell and zero object private members
@@ -61,9 +61,11 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
             gridCell.set_mPPT ( prec(ll,mn+2), mn );
         }
 
-        cout << "STASHING << Grid Cell :" << gridCell.get_Cell() << endl;
-        R_FlushConsole();
-        R_ProcessEvents();
+        // echo progress to user
+        if( ll == 0 ) {
+            cout << "STASH Progress:" << endl;
+        }
+        progress_bar(ll, ncell);
 
         // if the grid cell does not have any missing values
         miss_val = gridCell.get_Missing();
@@ -83,8 +85,6 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
             gridCell.set_MissingCell();
         }
 
-#pragma omp critical
-{
         // convert back to matrices for export to R
         assign_Rinit ( gridCell, ll, gSWC0, 364, &GridCell::get_dSMC   );
         assign_Rtotal( gridCell, ll, gTOT );
@@ -101,9 +101,11 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
         assign_Rmonth( gridCell, ll, gGDD10,   &GridCell::get_mGDD10   );
         assign_Rmonth( gridCell, ll, gCHILL,   &GridCell::get_mCHILL   );
 
-}
-
     }
+    // flush screen ready for R output
+    cout << endl;
+
+    // return SEXP-list to user with outputs
     return List::create(
             _("Total")  = gTOT, _("AET")    = gAET, _("EET")    = gEET,     _("PET")    = gPET,      _("DET") = gDET,
             _("PAR")    = gPAR, _("MI")     = gMI,  _("RO")     = gRO,      _("Alpha")  = gALPHA,
