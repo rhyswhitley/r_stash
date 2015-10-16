@@ -32,6 +32,9 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
     gridCell.init_Month (0.0);
     gridCell.resIn_Year (0.0);
 
+    // create a new line ready for the progress bar
+    cout << endl;
+
     // run through each grid cell and perform daily time-series calculations
     for( ll=0; ll<ncell; ll++ ) {
 
@@ -103,7 +106,7 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
 
     }
     // flush screen ready for R output
-    cout << endl;
+    cout << endl << endl;
 
     // return SEXP-list to user with outputs
     return List::create(

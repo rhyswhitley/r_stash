@@ -105,7 +105,7 @@
     # create a grid characteristic matrix
     # --------------------------------------------------
     # add lat/lon coordinates
-    gchar <- tasclim$MAT[,1:2]
+    gchar <- tasclim$Air.Temp[,1:2]
     # elevation [constant for testing]
     gchar$elev <- 0
     # field capacity of bucket water holding capacity [mm]
@@ -115,7 +115,7 @@
     # --------------------------------------------------
 
     # run model
-    output <- grid.stash(tasclim$MAT, tasclim$PPT, tasclim$Sun.Hrs, gchar)
+    output <- grid.stash(tasclim$Air.Temp, tasclim$Precip, tasclim$Sun.Hrs, gchar)
 
     # look at the annual total results
     ann.total <- stack.by.out(output$Total, na.rm=T)

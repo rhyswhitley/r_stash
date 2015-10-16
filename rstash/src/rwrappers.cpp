@@ -21,8 +21,11 @@ RcppExport SEXP sunshine( const SEXP r_sun ) {
     // fill matrices with zeroes
     fill( mrtoa.begin(), mrtoa.end(), 0 );
     fill( mrsun.begin(), mrsun.end(), 0 );
-    // allocate lat and lon columns
-    // do radiation calculations
+
+    // create a new line ready for the progress bar
+    cout << endl;
+
+    // allocate lat and lon columns and do radiation calculations
     for( ll=0, dn=0; ll<ncell; ll++ ) {
         mrtoa(ll,0) = swr(ll,0);
         mrtoa(ll,1) = swr(ll,1);
@@ -55,7 +58,7 @@ RcppExport SEXP sunshine( const SEXP r_sun ) {
     } // end cell
 
     // flush to new line -- ready for R
-    cout << endl;
+    cout << endl << endl;
 
     // return SEXP-list of outputs to user
     return List::create( _("Sun.Hrs")=mrsun, _("Rad.Top")=mrtoa );

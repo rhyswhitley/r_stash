@@ -8,7 +8,7 @@
 grid.stash <- function(temp.air, precip, sun.hours, grid.chars) {
 
     # inputs must conform to these data class types
-    class.types <- c("matrix, data.frame")
+    class.types <- c("matrix", "data.frame")
 
     # column requirement
     req.col = 14
@@ -22,17 +22,15 @@ grid.stash <- function(temp.air, precip, sun.hours, grid.chars) {
                         "RO", "GDD0", "GDD5", "GDD10", "Chill")
 
     # check if inputs meet class type requirements
-    if(class(temp.air)%in%class.types & 
-       class(precip)%in%class.types &
-       class(sun.hours)%in%class.types & 
-       class(grid.char)%in%class.types
+    if(class(temp.air)%in%class.types | 
+       class(precip)%in%class.types |
+       class(sun.hours)%in%class.types 
        ) {
 
         # check if there are the correct number of columns
-        if(ncol(temp.air)==req.col & 
-           ncol(precip)==req.col & 
-           ncol(sun.hrs)==req.col & 
-           ncol(grid.char)==req.col
+        if(ncol(temp.air)==req.col | 
+           ncol(precip)==req.col | 
+           ncol(sun.hours)==req.col
            ) {
 
             # convert to matrix type
