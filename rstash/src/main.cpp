@@ -110,10 +110,20 @@ RcppExport SEXP gridStash( const SEXP R_gtc, const SEXP R_gpr, const SEXP R_gfs,
 
     // return SEXP-list to user with outputs
     return List::create(
-            _("Total")  = gTOT, _("AET")    = gAET, _("EET")    = gEET,     _("PET")    = gPET,      _("DET") = gDET,
-            _("PAR")    = gPAR, _("MI")     = gMI,  _("RO")     = gRO,      _("Alpha")  = gALPHA,
-            _("GDD0")   = gGDD0,_("GDD5")   = gGDD5,_("GDD10")  = gGDD10,   _("Chill")  = gCHILL,
-            _("SWC0")   = gSWC0
+            _("annual") = gTOT,
+            _("act.evap") = gAET,
+            _("equ.evap") = gEET,
+            _("pot.evap") = gPET,
+            _("del.evap") = gDET,
+            _("photo.abs") = gPAR,
+            _("moist.index") = gMI,
+            _("alpha.index") = gALPHA,
+            _("run.off") = gRO,
+            _("grow.deg0") = gGDD0,
+            _("grow.deg5") = gGDD5,
+            _("grow.deg10") = gGDD10,
+            _("chill.day") = gCHILL,
+            _("swc.init") = gSWC0
             );
 }
 

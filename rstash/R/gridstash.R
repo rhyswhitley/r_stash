@@ -17,9 +17,10 @@ grid.stash <- function(temp.air, precip, sun.hours, grid.chars) {
     month.labels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
-    total.labels <- c("AET", "EET", "PET", "DET", "PAR",
-                        "MI", "Alpha", "MAT", "MAP", "FSUN",
-                        "RO", "GDD0", "GDD5", "GDD10", "Chill")
+    total.labels <- c("act.evap", "equ.evap", "pot.evap", "del.evap",
+                      "photo.abs", "moist.index", "alpha.index", "temp.air",
+                      "precip", "sun.hours", "run.off", "grow.deg0", "grow.deg5",
+                      "grow.deg10", "chill.day")
 
     # check if inputs meet class type requirements
     if(class(temp.air)%in%class.types | 

@@ -4,6 +4,7 @@
 *.so
 *.log
 *.rds
+.DS_Store
 test_scripts/*
 .Rapp.history
 rstash.Rcheck

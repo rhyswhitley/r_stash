@@ -11,6 +11,12 @@ stack.by.out <- function(dat, flag.to.na=FALSE) {
 
     # create an empty stack
     out.stack <- raster::stack()
+    
+    # labels for output
+    total.labels <- c("act.evap", "equ.evap", "pot.evap", "del.evap",
+                      "photo.abs", "moist.index", "alpha.index", "temp.air",
+                      "precip", "sun.hours", "run.off", "grow.deg0", "grow.deg5",
+                      "grow.deg10", "chill.day")
 
     # loop through each column of data that represent the annual total/mean 
     # of some quantity
@@ -29,9 +35,7 @@ stack.by.out <- function(dat, flag.to.na=FALSE) {
     }
 
     # add header information to each layer in the stack
-    names(out.stack) <- c("AET", "EET", "PET", "DET", "PAR",
-                          "MI", "Alpha", "MAT", "MAP", "FSUN",
-                          "RO", "GDD0", "GDD5", "GDD10", "Chill")
+    names(out.stack) <- total.labels
 
     # return to user
     return(out.stack)
