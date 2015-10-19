@@ -151,11 +151,11 @@
     output <- grid.stash(tasclim$Air.Temp, tasclim$Precip, tasclim$Sun.Hrs, gchar)
 
     # look at the annual total results
-    ann.total <- stack.by.out(output$Total, na.rm=T)
+    ann.total <- stack.by.out(output$annual, flag.to.na==TRUE)
     plot(ann.total)
 
     # look at individual monthly results for each bioclimatic mini-output (e.g. actual evaporation)
-    aet.12mon <- stack.by.mon(output$AET, na.rm=T)
-    plot(aet.12mon)    
+    aet.12mon <- stack.by.mon(output$act.evap, flag.to.na==TRUE)
+    plot(aet.12mon)
     }
 
