@@ -7,19 +7,19 @@ Package: rstash
 
 Type: Package
 
-Title: STASH R-Package
+Title: STASH (SPLASH) R-Package
 
 Version: 2.0
 
 Date: 2014-06-07
 
-Author: Rhys Whitley, Wang Han
+Author: Rhys Whitley
 
 Maintainer: [Rhys Whitley](<Rhys.Whitley@mq.edu.au>)
 
 Description: Determines bioclimatic information based on temperature, precipitation and sunshine hours.
 
-License: GPL-3
+License: CC0
 
 Depends: Rcpp (>= 0.10.3), raster
 

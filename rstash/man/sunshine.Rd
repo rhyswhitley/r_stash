@@ -35,7 +35,7 @@ Package: \tab sunshine\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2013-05-08\cr
-License: \tab GPL3\cr
+License: \tab CC0\cr
 }
 Sunshine is a function that converts monthly measurements of total
 solar radiation into a measure of mean monthly fractional hours of sunlight 

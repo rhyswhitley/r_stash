@@ -43,7 +43,7 @@
     Type: \tab Package\cr
     Version: \tab 2.0\cr
     Date: \tab 2014-04-28\cr
-    License: \tab GPL-3\cr
+    License: \tab CC0\cr
     }
     The STAtic SHell (STASH) model is simple process-based model that
     determines bioclimatic controls on vegetation first published by Sykes et
