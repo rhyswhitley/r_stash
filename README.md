@@ -57,7 +57,7 @@ or you can download the zip file from the this website. Once you've downloaded t
 #### >> Within R software
 The easiest way to install the package is by using the devtools package available through CRAN. Type the following in and away you go:
 
-`devtools::install_github("rhyswhitley/r_stash")`
+`devtools::install_github("rhyswhitley/r_stash", subdir="rstash")`
 
 If this fails, then you can try installing the package from the compressed tar.gz file, which you can download above. Using Rstudio or the base R software, click on Packages & Data > Package Installer. From the drop-down menu change CRAN (binaries) to Local Source Package. Click
 through to where you've downloaded the package and select the rstash_X.tar.gz
