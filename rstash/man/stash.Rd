@@ -43,7 +43,7 @@
     Type: \tab Package\cr
     Version: \tab 2.0\cr
     Date: \tab 2014-04-28\cr
-    License: \tab GPL-3\cr
+    License: \tab CC0\cr
     }
     The STAtic SHell (STASH) model is simple process-based model that
     determines bioclimatic controls on vegetation first published by Sykes et
@@ -151,11 +151,11 @@
     output <- grid.stash(tasclim$Air.Temp, tasclim$Precip, tasclim$Sun.Hrs, gchar)
 
     # look at the annual total results
-    ann.total <- stack.by.out(output$annual, flag.to.na==TRUE)
+    ann.total <- stack.by.out(output$annual, flag.to.na=TRUE)
     plot(ann.total)
 
     # look at individual monthly results for each bioclimatic mini-output (e.g. actual evaporation)
-    aet.12mon <- stack.by.mon(output$act.evap, flag.to.na==TRUE)
+    aet.12mon <- stack.by.mon(output$act.evap, flag.to.na=TRUE)
     plot(aet.12mon)
     }
 
