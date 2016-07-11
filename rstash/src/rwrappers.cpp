@@ -47,8 +47,12 @@ RcppExport SEXP sunshine( const SEXP r_sun ) {
                     // monthly total radiation at the top of the atmosphere
                     mrtoa(ll,i+2) += rtoa/mdays[i];
                 }
-                // monthly fraction of sunlight hours
-                mrsun(ll,i+2) = ( (swr(ll,i+2)/mrtoa(ll,i+2))-0.25 )/0.5;
+                if( mrtoa(ll,i+2) !=0.) {
+                    // monthly fraction of sunlight hours
+                    mrsun(ll,i+2) = ( (swr(ll,i+2)/mrtoa(ll,i+2))-0.25 )/0.5;
+                } else {
+                    mrsun(ll,i+2) = 0.
+                }
             } else {
                 // if is a sea grid cell or missing data set flag
                 mrtoa(ll,i+2) = -999.;
