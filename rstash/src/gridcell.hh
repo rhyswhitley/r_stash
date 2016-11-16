@@ -18,9 +18,9 @@ class GridCell {
  */
 private:
     // OBJECT VARIABLES
-    static const float
+    const float
                     miss_val = -999.;
-    static const int
+    const int
                     mlen = 12, dlen = 365;
     bool            wbss,   spinup;
     unsigned int    cell,   ygdd0,  ygdd5,  ygdd10;
