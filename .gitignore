@@ -5,7 +5,7 @@
 *.log
 *.rds
 .DS_Store
-test_scripts/*
+test_scripts/extra
 .Rapp.history
 rstash.Rcheck
 figures/
